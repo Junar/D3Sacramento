@@ -1,8 +1,10 @@
 var junarDataModel = Backbone.Model.extend({
     defaults: {
         the_matrix: [],
+        group_column: '', // column for grouping data //TODO must be multiple
+        sum_column: '', // column for sum data //TODO must be multiple
         x_axis: '',
-        dimensions: [],
+        dimensions: [], // fields (group_column and sum_column will be added automatically)
         url: '',
     },
     updateMatrix: function(){
@@ -54,6 +56,9 @@ var junarDataModel = Backbone.Model.extend({
     	self = this;
     	var x_axis = self.get('x_axis');
     	var dimensions = self.get('dimensions');
+    	//natural dimensions
+    	dimensions.push(self.get('sum_column'));
+    	dimensions.push(self.get('group_column'));
 
     	var ret = {}; //the return values. [0] is x_axis
     	ret['x_axis'] = [];
@@ -86,6 +91,6 @@ var junarDataView = Backbone.View.extend({
     },
 	el: '#d3Chart',
 	render: function(){
-		this.$el.html('He cambiado a ' + JSON.stringify(this.model.get('the_matrix')));
+		this.$el.html('He cambiado a <pre>' + JSON.stringify(this.model.get('the_matrix'), null, 2) + '</pre>');
 	}
 });

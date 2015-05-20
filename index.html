@@ -28,8 +28,17 @@ $(function() {
 	$('#getRealData').on('click', function(){
 		jdm.set('url', 'data/CITY-OF-SACRA-PROPO-BUDGE-limit-500.json');
 		// http://api.data.cityofsacramento.org/datastreams/invoke/CITY-OF-SACRA-PROPO-BUDGE?auth_key=83188724f203014ccc3165df68769d21273b625e (&limit=500)
+		//define group field
+		jdm.set('group_column', 'SECTION'); 
+
+		//define SUM field
+		jdm.set('sum_column', 'BUDGET AMOUNT');
+
+		//define fields function
 		jdm.set('x_axis', 'DIVISION');
-		jdm.set('dimensions', ['BUDGET AMOUNT', 'Year']);
+
+		// sum_ and group_ are used automatically 
+		// jdm.set('dimensions', ['Year']);
 
 		jdm.updateMatrix();
 		
