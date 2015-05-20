@@ -3,12 +3,35 @@
 <head>
 <meta charset="UTF-8">
 <title>Junar D3</title>
+
+<script type='text/javascript' src='js/jquery-1.11.3.min.js'></script>
+<script type='text/javascript' src='js/underscore-min.js'></script>
+<script type='text/javascript' src='js/backbone-min.js'></script>
+
+<script type='text/javascript' src='bb/junarData.js'></script>
+
 </head>
 
 <body>
 <h3>Junar D3</h3>
 <div id='d3Chart'></div>
+<button id='getRealData'>Get Real Data</button>
 
+<script type="text/javascript">
+
+$(function() {
+	jdm = new junarDataModel({the_matrix: []});
+	jdv = new junarDataView({model: jdm});
+
+	jdm.set('the_matrix', {data: 'simple'});
+
+	$('#getRealData').on('click', function(){
+		jdm.updateMatrix();
+	});
+
+});
+
+</script>
 </body>
 
 </html>
