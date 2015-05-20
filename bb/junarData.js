@@ -60,22 +60,25 @@ var junarDataModel = Backbone.Model.extend({
     	dimensions.push(self.get('sum_column'));
     	dimensions.push(self.get('group_column'));
 
-    	var ret = {}; //the return values. [0] is x_axis
-    	ret['x_axis'] = [];
-    	ret['dimensions'] = {};
-    	for (d in dimensions) {
-    		ret['dimensions'][dimensions[d]] = [];
-    	}
+    	var ret = []; 
+
+        //first row is titles
+    	var this_row = dimensions;
+        this_row.unshift(x_axis);
+        ret.push(this_row);
 
     	_.each(data, function(row){
+            var this_row = [];
+
     		for (key in row) {
     			if (key == x_axis){
-    				ret.x_axis.push(row[key]);
+    				this_row[0] = row[key];
     			}
     			else if (dimensions.indexOf(key) >= 0){
-    				ret['dimensions'][key].push(row[key]);
+                    var ix = dimensions.indexOf(key); // preserve order
+    				this_row[ix] = row[key];
     			}
-
+            ret.push(this_row);
     		}
     	});
 
