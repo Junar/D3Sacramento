@@ -11,6 +11,7 @@ var junarDataModel = Backbone.Model.extend({
     	self = this;
     	var xhr = $.ajax({
     		method: 'GET',
+            dataType: 'json',
     		url: self.get('url'), //a sample data from sacramento
     	});
     	xhr.done(function(data){
