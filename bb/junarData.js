@@ -105,17 +105,16 @@ var junarDataModel = Backbone.Model.extend({
 
 var junarDataView = Backbone.View.extend({
 	initialize: function() {
-      this.listenTo(this.model, 'change:the_matrix', this.render);
+      this.listenToOnce(this.model, 'change:the_matrix', this.render);
     },
 	el: '#d3Chart',
     render: function(){
 
         var data = this.model.get('the_matrix');
+        var headers = data.shift();
 
         var $el = this.$el.empty();
 
-
-        var header = data.shift();
 
         var margin = {top: 20, right: 20, bottom: 30, left: 80},
             width = $el.width() - margin.left - margin.right,
@@ -129,14 +128,10 @@ var junarDataView = Backbone.View.extend({
         var color = d3.scale.category10();
 
         var x = d3.time.scale()
-            .range([0, width])
-            .domain(d3.extent(data, function (d) {
-                return convertDate(d[0]);
-            }));
+            .range([0, width]);
 
         var y = d3.scale.linear()
-            .range([height, 0])
-            .domain([0,d3.max(data,function(d){return d3.sum(d,function(d,i){return i==0?0:d})})]);
+            .range([height, 0]);
 
 
         var xAxis = d3.svg.axis()
@@ -191,13 +186,13 @@ var junarDataView = Backbone.View.extend({
 
         var g = svg.append('g');
 
-        var sectores = function () {
+        var sectores = function (data,headers) {
             var result = [];
 
             for (var i = 1; i < data[0].length; i++){
                 result.push({
                     id: i,
-                    name: header[i],
+                    name: headers[i],
                     values: data.map(function(d){
                         return {x: convertDate(d[0]), y:d[i]}
                     })
@@ -210,8 +205,16 @@ var junarDataView = Backbone.View.extend({
         };
 
         var stackedData;
-        var update = function () {
-            stackedData = sectores();
+        var update = function (data,headers) {
+            stackedData = sectores(data,headers);
+
+            console.log(data);
+
+            x.domain(d3.extent(data, function (d) {return convertDate(d[0]);}));
+            y.domain([0,d3.max(data,function(d){return d3.sum(d,function(d,i){return i==0?0:d})})]);
+
+            svg.select(".y.axis").call(yAxis);
+            svg.select(".x.axis").call(xAxis);
 
             var paths = g.selectAll(".sector")
                 .data(stackedData);
@@ -238,7 +241,13 @@ var junarDataView = Backbone.View.extend({
 
         }
 
-        update();
+        update(data,headers);
+
+        this.listenTo(this.model, 'change:the_matrix', function(){
+            var data = this.model.get('the_matrix');
+            var headers = data.shift();
+            update(data,headers);
+        });
 
 
         var legend = svg.append("g")
