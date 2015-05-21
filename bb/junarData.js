@@ -207,9 +207,7 @@ var junarDataView = Backbone.View.extend({
         var stackedData;
         var update = function (data,headers) {
             stackedData = sectores(data,headers);
-
-            console.log(data);
-
+            
             x.domain(d3.extent(data, function (d) {return convertDate(d[0]);}));
             y.domain([0,d3.max(data,function(d){return d3.sum(d,function(d,i){return i==0?0:d})})]);
 
