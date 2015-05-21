@@ -2,9 +2,8 @@ var junarDataModel = Backbone.Model.extend({
     defaults: {
         the_matrix: [],
         group_column: '', // column for grouping data //TODO must be multiple
-        sum_column: '', // column for sum data //TODO must be multiple
+        sum_columns: [], // column for sum data //TODO must be multiple
         x_axis: '',
-        dimensions: [], // fields (group_column and sum_column will be added automatically)
         url: '',
     },
     updateMatrix: function(){
@@ -52,37 +51,51 @@ var junarDataModel = Backbone.Model.extend({
     	});
     	return ret;
     },
-    /* takes a fixed regular Json and filter X_axis and dimensions */
+    /* takes a fixed regular Json and filter X_axis and dimensions (sum_columns)) */
     dimensionData: function(data){
     	self = this;
     	var x_axis = self.get('x_axis');
-    	var dimensions = self.get('dimensions');
-    	//natural dimensions
-    	dimensions.push(self.get('sum_column'));
-    	dimensions.push(self.get('group_column'));
-
+    	sum_cols = self.get('sum_columns');
+    	group_col = self.get('group_column');
+    	
     	var ret = []; 
 
         //first row is titles
-    	var this_row = dimensions;
+    	var this_row = sum_cols.slice();
         this_row.unshift(x_axis);
         ret.push(this_row);
 
-    	_.each(data, function(row){
-            var this_row = [];
-
-    		for (key in row) {
+        // group data
+        grouped = {};
+        // detect and put cero for any series
+        _.each(data, function(row){
+            for (key in row) {
     			if (key == x_axis){
-    				this_row[0] = row[key];
+    				grouped[row[key]] = {};
+    				for (c in sum_cols) {
+                	    grouped[row[key]][sum_cols[c]] = 0;
+                	    }
     			}
-    			else if (dimensions.indexOf(key) >= 0){
-                    var ix = dimensions.indexOf(key); // preserve order
-    				this_row[ix] = row[key];
+    		}
+        });
+
+    	_.each(data, function(row){
+            for (key in row) {
+    			if (sum_cols.indexOf(key) >= 0){
+    			    grouped[row[x_axis]][key] += parseFloat(row[key]);
     			}
-            ret.push(this_row);
     		}
     	});
-
+    	
+    	for (g in grouped){
+    	    elem = [];
+    	    elem.push(g);
+    	    for (c in sum_cols) {
+    	        elem.push(grouped[g][sum_cols[c]])
+    	    }
+    	    ret.push(elem);
+	    }
+    	
     	return ret;
     },
 

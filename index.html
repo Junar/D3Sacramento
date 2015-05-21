@@ -14,8 +14,8 @@
 
 <body>
 <h3>Junar D3</h3>
+<button id='getRealData'>Update random data</button>
 <div id='d3Chart'></div>
-<button id='getRealData'>Get Real Data</button>
 
 <script type="text/javascript">
 
@@ -23,22 +23,21 @@ $(function() {
 	jdm = new junarDataModel({the_matrix: []});
 	jdv = new junarDataView({model: jdm});
 
-	jdm.set('the_matrix', {data: 'simple'});
+	jdm.set('the_matrix', [ ['Year', 'BUDGET AMOUNT', 'Id'], ['2014', 22222, 3333], ['2015', 23222, 4333], ['2016', 24222, 5333] ]);
 
 	$('#getRealData').on('click', function(){
-		jdm.set('url', 'data/CITY-OF-SACRA-PROPO-BUDGE-limit-500.json');
+		// random file
+		file = Math.floor((Math.random() * 2));
+		jdm.set('url', 'data/CITY-OF-SACRA-PROPO-BUDGE-limit-50' + file + '.json');
 		// http://api.data.cityofsacramento.org/datastreams/invoke/CITY-OF-SACRA-PROPO-BUDGE?auth_key=83188724f203014ccc3165df68769d21273b625e (&limit=500)
 		//define group field
-		jdm.set('group_column', 'Id'); 
+		jdm.set('group_column', 'Year'); 
 
 		//define SUM field
-		jdm.set('sum_column', 'BUDGET AMOUNT');
+		jdm.set('sum_columns', ['BUDGET AMOUNT', 'Id']);
 
 		//define fields function
-		jdm.set('x_axis', 'Year');
-
-		// sum_ and group_ are used automatically 
-		// jdm.set('dimensions', ['id']);
+		jdm.set('x_axis', 'Year');		
 
 		jdm.updateMatrix();
 		
