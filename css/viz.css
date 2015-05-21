@@ -2,6 +2,10 @@
   font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
   font-size: 11px;
 }
+#d3Chart svg .legend rect {
+  fill: white;
+  opacity: 0.8;
+}
 #d3Chart svg .axis path {
   display: none;
 }

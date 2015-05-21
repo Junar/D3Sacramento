@@ -114,7 +114,7 @@ var junarDataView = Backbone.View.extend({
         var $el = this.$el.empty();
 
 
-        data.shift();
+        var header = data.shift();
 
         var margin = {top: 20, right: 20, bottom: 30, left: 80},
             width = $el.width() - margin.left - margin.right,
@@ -190,12 +190,13 @@ var junarDataView = Backbone.View.extend({
 
         var g = svg.append('g');
 
-        var sectores = function (ids) {
+        var sectores = function () {
             var result = [];
 
             for (var i = 1; i < data[0].length; i++){
                 result.push({
                     id: i,
+                    name: header[i],
                     values: data.map(function(d){
                         return {x: convertDate(d[0]), y:d[i]}
                     })
@@ -224,14 +225,25 @@ var junarDataView = Backbone.View.extend({
                 .attr('fill', function (d) {
                     return color(d.id)
                 })
-                .attr('fill-opacity', 0.8);
+                .attr('fill-opacity', 0.8)
+                .attr("data-legend",function(d) { return d.name})
+                .each('end',function(){
+                    legend.call(d3.legend)
+                });
 
             paths.exit().remove();
+
+
+
         }
 
         update();
 
 
+        var legend = svg.append("g")
+            .attr("class","legend")
+            .attr("transform","translate(10,0)")
+            .style("font-size","12px")
 
 
         var focus = svg.append("g")
