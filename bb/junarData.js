@@ -82,7 +82,8 @@ var junarDataModel = Backbone.Model.extend({
     	_.each(data, function(row){
             for (key in row) {
     			if (sum_cols.indexOf(key) >= 0){
-    			    grouped[row[x_axis]][key] += parseFloat(row[key]);
+                    grouped[row[x_axis]][key] += parseFloat(row[key]);
+                    if (key =='Id') grouped[row[x_axis]][key] += Math.floor((Math.random() * 100000));;
     			}
     		}
     	});

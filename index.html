@@ -28,7 +28,7 @@ $(function() {
 
 	$('#getRealData').on('click', function(){
 		// random file
-		file = Math.floor((Math.random() * 2));
+		file = Math.floor((Math.random() * 4));
 		jdm.set('url', 'data/CITY-OF-SACRA-PROPO-BUDGE-limit-50' + file + '.json');
 		// http://api.data.cityofsacramento.org/datastreams/invoke/CITY-OF-SACRA-PROPO-BUDGE?auth_key=83188724f203014ccc3165df68769d21273b625e (&limit=500)
 		//define group field
