@@ -1,0 +1,11 @@
+#d3Chart {
+  font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+  font-size: 11px;
+}
+#d3Chart svg .axis path {
+  display: none;
+}
+#d3Chart svg .axis line {
+  shape-rendering: crispEdges;
+  stroke: #CCC;
+}

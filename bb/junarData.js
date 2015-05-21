@@ -108,6 +108,211 @@ var junarDataView = Backbone.View.extend({
     },
 	el: '#d3Chart',
 	render: function(){
-		this.$el.html('He cambiado a <pre>' + JSON.stringify(this.model.get('the_matrix'), null, 2) + '</pre>');
+		//this.$el.html('He cambiado a <pre>' + JSON.stringify(this.model.get('the_matrix'), null, 2) + '</pre>');
+
+        var data = this.model.get('the_matrix');
+
+        var $el = this.$el.empty();
+
+        //d3.json('data/sample.json',function(data) {
+
+            data.shift();
+
+            var margin = {top: 20, right: 20, bottom: 30, left: 80},
+                width = $el.width() - margin.left - margin.right,
+                height = $el.height() - margin.top - margin.bottom;
+
+            var formatter = d3.format(',');
+            var convertDate = function (string) {
+                return new Date(string, 0);
+            };
+
+            var color = d3.scale.category10();
+
+            var x = d3.time.scale()
+                .range([0, width])
+                .domain(d3.extent(data, function (d) {
+                    return convertDate(d[0]);
+                }));
+
+            var y = d3.scale.linear()
+                .range([height, 0])
+                .domain([0,d3.max(data,function(d){return d3.sum(d,function(d,i){return i==0?0:d})})]);
+
+
+            var xAxis = d3.svg.axis()
+                .scale(x)
+                .orient("bottom");
+
+            var yAxis = d3.svg.axis()
+                .scale(y)
+                .orient("left")
+                .tickSize(-width);
+
+
+            var area = d3.svg.area()
+                .x(function (d) {
+                    return x(d.x);
+                })
+                .y0(function (d) {
+                    return y(d.y0);
+                })
+                .y1(function (d) {
+                    return y(d.y0 + d.y);
+                });
+
+            var stack = d3.layout.stack()
+                .values(function (d) {
+                    return d.values;
+                });
+
+            var svg = d3.select($el.get(0)).append("svg")
+                .attr("width", width + margin.left + margin.right)
+                .attr("height", height + margin.top + margin.bottom)
+                .style('overflow', 'visible')
+                .append("g")
+                .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+
+
+            svg.append("g")
+                .attr("class", "x axis")
+                .attr("transform", "translate(0," + height + ")")
+                .call(xAxis);
+
+            svg.append("g")
+                .attr("class", "y axis")
+                .call(yAxis)
+                .append("text")
+                .attr("transform", "rotate(-90)")
+                .attr('x', -(height / 2))
+                .attr("y", -margin.left)
+                .attr("dy", ".8em")
+                .style("text-anchor", "middle")
+                .text("Budget Amount");
+
+            var g = svg.append('g');
+
+            var sectores = function (ids) {
+                var result = [];
+
+                for (var i = 1; i < data[0].length; i++){
+                    result.push({
+                        id: i,
+                        values: data.map(function(d){
+                            return {x: convertDate(d[0]), y:d[i]}
+                        })
+                    });
+                }
+
+                return stack(result);
+
+                /*
+                return stack(ids.map(function (id) {    //Falta agrupar los años
+                    return {
+                        id: id,
+                        values: data.filter(function (d) {
+                            return d[2] == id;
+                        }).map(function(d){
+                            return {x: d[0], y: d[1]}
+                        })
+                    };
+                }));*/
+            };
+
+            var stackedData;
+            var update = function () {
+                stackedData = sectores();
+
+                var paths = g.selectAll(".sector")
+                    .data(stackedData);
+
+                paths.enter().append('path');
+
+                paths.attr('class', 'sector')
+                    .transition()
+                    .attr("d", function (d) {
+                        return area(d.values);
+                    })
+                    .attr('fill', function (d) {
+                        return color(d.id)
+                    })
+                    .attr('fill-opacity', 0.8);
+
+                paths.exit().remove();
+            }
+
+            update();
+
+            /*
+            $scope.$watch('input.embalse', function () {
+
+                update($scope.input.embalse == -1 ? [0, 1] : [$scope.input.embalse]);
+
+
+            });
+            */
+
+
+            var focus = svg.append("g")
+                .attr("class", "focus")
+                .style("display", "none");
+
+            focus.append("circle")
+                .attr("r", 6)
+                .style('fill-opacity', 0.5);
+
+            focus.append('rect')
+                .attr('fill', '#333')
+                .attr('width', 180)
+                .attr('height', 25)
+                .attr('x', -90)
+                .attr('y', -38);
+
+            focus.append("text")
+                .attr('fill', '#fff')
+                .attr('text-anchor', 'middle')
+                .attr("y", -20);
+
+            svg.append("rect")
+                .attr("class", "overlay")
+                .attr("width", width)
+                .attr("height", height)
+                .style('fill', 'none')
+                .style('pointer-events', 'all')
+                .on("mouseover", function () {
+                    focus.style("display", null);
+                })
+                .on("mouseout", function () {
+                    focus.style("display", "none");
+                })
+                .on("mousemove", mousemove);
+
+            function mousemove() {
+
+                var x0 = d3.mouse(this)[0];
+                var y0 = d3.mouse(this)[1];
+                var minDistance = Number.MAX_VALUE;
+                var d = null;
+
+                for (var i in stackedData) {
+                    for (var j in stackedData[i].values) {
+                        var distance = Math.pow(x0 - x(stackedData[i].values[j].x), 2) + Math.pow(y0 - y(stackedData[i].values[j].y0 + stackedData[i].values[j].y), 2);
+                        if (distance <= Math.pow(80, 2) && distance < minDistance) {
+                            minDistance = distance;
+                            d = stackedData[i].values[j];
+                        }
+                    }
+                }
+
+                if (d) {
+                    focus.style("display", null);
+                    focus.attr("transform", "translate(" + x(d.x) + "," + y(d.y0 + d.y) + ")");
+                    focus.select("text").text(formatter(d.y0 + d.y) + ' Budget Amount - ' + d.x.getFullYear());
+                } else {
+                    focus.style("display", "none");
+                }
+
+            }
+        //});
 	}
 });
