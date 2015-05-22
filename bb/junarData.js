@@ -499,11 +499,16 @@ var junarDataView = Backbone.View.extend({
 
         var focus = svg.append("g")
             .attr("class", "focus")
-            //.style("display", "none");
+            .style("display", "none");
 
-        focus.append("circle")
-            .attr("r", 6)
-            .style('fill-opacity', 0.5);
+        focus.append("line")
+            .attr("x1", 0)
+            .attr("y1", 2)
+            .attr("x2", 0)
+            .attr("y2", 2)
+            .style("stroke",'black')
+            .style("stroke-width",4)
+            .style('stroke-opacity', 0.5);
 
         focus.append('rect')
             .attr('fill', '#333')
@@ -524,6 +529,7 @@ var junarDataView = Backbone.View.extend({
                 focus.style("display", null);
                 focus.attr("transform", "translate(" + (x(d.x) + x.rangeBand()/2) + "," + y(d.y0 + d.y) + ")");
                 focus.select("text").text(formatter(d.y0 + d.y) + ' Budget Amount - ' + d.x);
+                focus.select("line").attr("x1",-x.rangeBand()/2).attr("x2", x.rangeBand()/2)
             } else {
                 focus.style("display", "none");
             }
