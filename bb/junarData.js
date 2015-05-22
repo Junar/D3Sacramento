@@ -461,7 +461,15 @@ var junarDataView = Backbone.View.extend({
                 .attr('y',function(d){return y(d.y0) - height + y(d.y)})
                 .attr('width', x.rangeBand())
                 .attr('height', function(d){return height-y(d.y)})
-                .attr('fill-opacity', 0.8);
+                .attr('fill-opacity', 0.8)
+                .style('pointer-events', 'all')
+                .on("mouseover", function () {
+                    focus.style("display", null);
+                })
+                .on("mouseout", function () {
+                    focus.style("display", "none");
+                })
+                .on("mousemove", mousemove);;
 
                 //.each('end',function(){
                 //    legend.call(d3.legend)
@@ -487,11 +495,11 @@ var junarDataView = Backbone.View.extend({
 
 
 
-        /*
+
 
         var focus = svg.append("g")
             .attr("class", "focus")
-            .style("display", "none");
+            //.style("display", "none");
 
         focus.append("circle")
             .attr("r", 6)
@@ -509,47 +517,19 @@ var junarDataView = Backbone.View.extend({
             .attr('text-anchor', 'middle')
             .attr("y", -20);
 
-        svg.append("rect")
-            .attr("class", "overlay")
-            .attr("width", width)
-            .attr("height", height)
-            .style('fill', 'none')
-            .style('pointer-events', 'all')
-            .on("mouseover", function () {
-                focus.style("display", null);
-            })
-            .on("mouseout", function () {
-                focus.style("display", "none");
-            })
-            .on("mousemove", mousemove);
 
-        function mousemove() {
-
-            var x0 = d3.mouse(this)[0];
-            var y0 = d3.mouse(this)[1];
-            var minDistance = Number.MAX_VALUE;
-            var d = null;
-
-            for (var i in stackedData) {
-                for (var j in stackedData[i].values) {
-                    var distance = Math.pow(x0 - x(stackedData[i].values[j].x), 2) + Math.pow(y0 - y(stackedData[i].values[j].y0 + stackedData[i].values[j].y), 2);
-                    if (distance <= Math.pow(80, 2) && distance < minDistance) {
-                        minDistance = distance;
-                        d = stackedData[i].values[j];
-                    }
-                }
-            }
+        function mousemove(d) {
 
             if (d) {
                 focus.style("display", null);
-                focus.attr("transform", "translate(" + x(d.x) + "," + y(d.y0 + d.y) + ")");
-                focus.select("text").text(formatter(d.y0 + d.y) + ' Budget Amount - ' + d.x.getFullYear());
+                focus.attr("transform", "translate(" + (x(d.x) + x.rangeBand()/2) + "," + y(d.y0 + d.y) + ")");
+                focus.select("text").text(formatter(d.y0 + d.y) + ' Budget Amount - ' + d.x);
             } else {
                 focus.style("display", "none");
             }
 
         }
-        */
+
     }
 
 });
