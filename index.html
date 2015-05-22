@@ -17,6 +17,8 @@
 <body>
 <h3>Junar D3</h3>
 <button id='getRealData'>Update random data</button>
+<label><input name="chartType" type="radio" value="area" checked> Area chart</label>
+<label><input name="chartType" type="radio" value="bar"> Bar chart</label>
 <div id='d3Chart' style="width: 800px; height: 500px;"></div>
 
 <script type="text/javascript">
@@ -42,8 +44,14 @@ $(function() {
 		jdm.set('x_axis', 'Year');		
 
 		jdm.updateMatrix();
+
+
 		
 	});
+
+    $("[name=chartType]").on("change",function(el){
+        jdm.set('chart_type',this.value);
+    })
 
 });
 
